@@ -14,6 +14,7 @@ import CareerPaths from "./pages/CareerPaths";
 import InterviewPrep from "./pages/InterviewPrep";
 import Resources from "./pages/Resources";
 import LinkedInNetworking from "./pages/LinkedInNetworking";
+import ResumeBuilder from "./pages/ResumeBuilder";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,7 @@ const App = () => (
               <Route path="/calculator" element={<ETSCalculator />} />
               <Route path="/plan" element={<TransitionPlan />} />
               <Route path="/careers" element={<CareerPaths />} />
+              <Route path="/resume" element={<ResumeBuilder />} />
               <Route path="/sales" element={<Dashboard />} />
               <Route path="/resume" element={<Dashboard />} />
               <Route path="/interview" element={<InterviewPrep />} />
