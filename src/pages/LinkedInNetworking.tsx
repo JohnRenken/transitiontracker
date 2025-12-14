@@ -23,7 +23,16 @@ import {
   Mail,
   RefreshCw,
   AlertTriangle,
-  Zap
+  Zap,
+  Camera,
+  ImageIcon,
+  Quote,
+  Award,
+  BookOpen,
+  Globe,
+  Heart,
+  Briefcase,
+  X
 } from "lucide-react";
 
 const LinkedInNetworking = () => {
@@ -146,6 +155,96 @@ const LinkedInNetworking = () => {
     }
   ];
 
+  const profileSections = [
+    {
+      section: "Profile Photo",
+      icon: Camera,
+      do: ["Good, clean professional headshot", "Friendly, approachable expression", "Plain or simple background"],
+      dont: ["Military uniform (those days are over)", "Group photos or cropped images", "Selfies or casual photos"]
+    },
+    {
+      section: "Background Banner",
+      icon: ImageIcon,
+      do: ["Make it about YOU, not your company", "Personally tailored to your brand", "Shows your personality/interests"],
+      dont: ["Company logos (avg job tenure is 3-5 years)", "Generic stock images", "Blank/default LinkedIn banner"]
+    },
+    {
+      section: "Headline",
+      icon: Quote,
+      do: ["Make it an attention grabber", "Focus on WHO you are", "Think: 'Would someone swipe right?'"],
+      dont: ["Just list your job title", "Stack certifications (Six Sigma, PMP, etc.)", "Make it boring/generic"]
+    },
+    {
+      section: "About Section",
+      icon: FileText,
+      do: ["Read like a resume", "Divide into clear categories", "Show your journey and bonafides"],
+      dont: ["Leave it blank", "Write one vague paragraph", "Make it all about your current job"]
+    },
+    {
+      section: "Featured Section",
+      icon: Star,
+      do: ["Podcasts you've been on", "Articles you've written", "Interviews and media appearances"],
+      dont: ["Leave it empty", "Say no to podcast invites", "Miss opportunities to build credibility"]
+    },
+    {
+      section: "Experience",
+      icon: Briefcase,
+      do: ["SUBDIVIDE military time by positions", "Show each role separately", "Make it look full and detailed"],
+      dont: ["Just list 'US Army 1995-2025'", "Leave gaps unexplained", "Be vague about accomplishments"]
+    },
+    {
+      section: "Certifications",
+      icon: Award,
+      do: ["List ALL of them (up to 100)", "Shows you're a learner", "Include military training certs"],
+      dont: ["Skip 'small' certifications", "Assume they don't matter", "Leave this section empty"]
+    },
+    {
+      section: "Skills",
+      icon: CheckCircle2,
+      do: ["Add around 50 skills", "Put TOP skills first", "Get endorsements from connections"],
+      dont: ["Only add 5-10 skills", "Put irrelevant skills at top", "Skip this section"]
+    },
+    {
+      section: "Recommendations",
+      icon: MessageSquare,
+      do: ["Get 8-10 to start", "From subordinates, peers, and leaders", "Ask classmates and colleagues"],
+      dont: ["Have zero recommendations", "Wait for people to offer", "Only get recommendations from friends"]
+    },
+    {
+      section: "Volunteering",
+      icon: Heart,
+      do: ["Add volunteer work", "Shows values alignment", "Companies look for this now"],
+      dont: ["Think it doesn't matter", "Skip if you don't have much", "Leave blank if you volunteer"]
+    },
+    {
+      section: "Languages",
+      icon: Globe,
+      do: ["Add any languages you speak", "Opens up non-English networks", "Reduces spam perception"],
+      dont: ["Only list if fluent", "Skip if 'not relevant'", "Forget about this section"]
+    },
+    {
+      section: "Connections",
+      icon: Users,
+      do: ["Keep connections OPEN (visible)", "The purpose of LinkedIn is networking", "Let people see who you know"],
+      dont: ["Hide your connections", "Keep your network private", "Block visibility"]
+    }
+  ];
+
+  const badProfileTraits = [
+    "No profile picture",
+    "No background banner",
+    "No posts or activity",
+    "No recommendations",
+    "Very few skills listed",
+    "Minimal information overall"
+  ];
+
+  const whyBadProfileFails = [
+    { context: "Applying for a job", result: "Easy pass - hiring managers have hundreds of applicants" },
+    { context: "Reaching out for sales", result: "Looks like spam/scam - nothing validates who you are" },
+    { context: "Trying to network", result: "No credibility - why would someone invest time in you?" }
+  ];
+
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
@@ -202,10 +301,14 @@ const LinkedInNetworking = () => {
       <section className="py-16 px-4">
         <div className="container mx-auto max-w-6xl">
           <Tabs defaultValue="method" className="space-y-8">
-            <TabsList className="grid grid-cols-2 md:grid-cols-5 gap-2 h-auto bg-muted/50 p-2">
+            <TabsList className="grid grid-cols-3 md:grid-cols-6 gap-2 h-auto bg-muted/50 p-2">
+              <TabsTrigger value="profile" className="flex items-center gap-2 py-3">
+                <UserPlus className="w-4 h-4" />
+                Profile
+              </TabsTrigger>
               <TabsTrigger value="method" className="flex items-center gap-2 py-3">
                 <Target className="w-4 h-4" />
-                The Method
+                Method
               </TabsTrigger>
               <TabsTrigger value="outreach" className="flex items-center gap-2 py-3">
                 <MessageSquare className="w-4 h-4" />
@@ -213,17 +316,144 @@ const LinkedInNetworking = () => {
               </TabsTrigger>
               <TabsTrigger value="resume" className="flex items-center gap-2 py-3">
                 <FileText className="w-4 h-4" />
-                Resume Match
+                Resume
               </TabsTrigger>
               <TabsTrigger value="daily" className="flex items-center gap-2 py-3">
                 <RefreshCw className="w-4 h-4" />
-                Daily Routine
+                Daily
               </TabsTrigger>
               <TabsTrigger value="reality" className="flex items-center gap-2 py-3">
                 <AlertTriangle className="w-4 h-4" />
-                Reality Check
+                Reality
               </TabsTrigger>
             </TabsList>
+
+            {/* Profile Building Tab */}
+            <TabsContent value="profile" className="space-y-8">
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-bold mb-4">Build a Profile That Gets Results</h2>
+                <p className="text-muted-foreground max-w-2xl mx-auto">
+                  Your LinkedIn profile is your digital first impression. If it looks incomplete or fake, 
+                  you're an easy pass—whether you're job hunting or selling.
+                </p>
+              </div>
+
+              {/* Bad Profile Warning */}
+              <Card className="border-destructive/30 bg-destructive/5">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-destructive">
+                    <X className="w-5 h-5" />
+                    The "Easy Pass" Profile
+                  </CardTitle>
+                  <CardDescription>
+                    If your profile looks like this, hiring managers and prospects will skip right past you
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex flex-wrap gap-2">
+                    {badProfileTraits.map((trait, idx) => (
+                      <Badge key={idx} variant="destructive" className="bg-destructive/20 text-destructive">
+                        <X className="w-3 h-3 mr-1" />
+                        {trait}
+                      </Badge>
+                    ))}
+                  </div>
+                  <div className="grid md:grid-cols-3 gap-4 pt-4">
+                    {whyBadProfileFails.map((item, idx) => (
+                      <div key={idx} className="p-3 bg-background rounded-lg border">
+                        <p className="text-sm font-medium mb-1">{item.context}</p>
+                        <p className="text-sm text-muted-foreground">{item.result}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="p-4 bg-destructive/10 rounded-lg border border-destructive/20 mt-4">
+                    <p className="text-sm font-medium text-destructive">
+                      "If this is how you do your LinkedIn, chances are that's how you do everything."
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Profile Sections Grid */}
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {profileSections.map((section, idx) => (
+                  <Card key={idx} className="h-full">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="flex items-center gap-2 text-lg">
+                        <section.icon className="w-5 h-5 text-primary" />
+                        {section.section}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div>
+                        <p className="text-xs font-medium text-emerald-600 mb-1">DO:</p>
+                        <ul className="space-y-1">
+                          {section.do.map((item, i) => (
+                            <li key={i} className="text-sm flex items-start gap-1">
+                              <CheckCircle2 className="w-3 h-3 text-emerald-500 mt-1 shrink-0" />
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div>
+                        <p className="text-xs font-medium text-destructive mb-1">DON'T:</p>
+                        <ul className="space-y-1">
+                          {section.dont.map((item, i) => (
+                            <li key={i} className="text-sm flex items-start gap-1 text-muted-foreground">
+                              <X className="w-3 h-3 text-destructive mt-1 shrink-0" />
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              {/* Key Insights */}
+              <Card className="bg-primary/5 border-primary/20">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Lightbulb className="w-5 h-5 text-amber-500" />
+                    Key Insights
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                      <h4 className="font-semibold">Why Your Banner Should Be About YOU</h4>
+                      <p className="text-sm text-muted-foreground">
+                        The average job tenure is now 3-5 years. If you're promoting a company in your background, 
+                        you'll have to change it soon. Brand yourself, not your employer.
+                      </p>
+                    </div>
+                    <div className="space-y-3">
+                      <h4 className="font-semibold">The Bonafides Principle</h4>
+                      <p className="text-sm text-muted-foreground">
+                        A thorough About section reads like a resume and establishes credibility. 
+                        Scammers don't spend time building detailed profiles—your completeness proves you're legitimate.
+                      </p>
+                    </div>
+                    <div className="space-y-3">
+                      <h4 className="font-semibold">Recommendations = Trust</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Get 8-10 recommendations from subordinates, peers, and leaders. 
+                        Ask classmates and colleagues. This proves you're not a scam artist.
+                      </p>
+                    </div>
+                    <div className="space-y-3">
+                      <h4 className="font-semibold">Subdivide Your Military Experience</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Don't just list "US Army 1995-2025." Break it down by position. 
+                        Each role shows progression and makes your experience look fuller.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
 
             {/* The Method Tab */}
             <TabsContent value="method" className="space-y-6">
