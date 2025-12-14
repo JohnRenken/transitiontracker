@@ -13,6 +13,7 @@ import TransitionPlan from "./pages/TransitionPlan";
 import CareerPaths from "./pages/CareerPaths";
 import InterviewPrep from "./pages/InterviewPrep";
 import Resources from "./pages/Resources";
+import LinkedInNetworking from "./pages/LinkedInNetworking";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => (
               <Route path="/resume" element={<Dashboard />} />
               <Route path="/interview" element={<InterviewPrep />} />
               <Route path="/resources" element={<Resources />} />
+              <Route path="/networking" element={<LinkedInNetworking />} />
               <Route path="/profile" element={<Dashboard />} />
               <Route path="/admin" element={<Dashboard />} />
             </Route>
