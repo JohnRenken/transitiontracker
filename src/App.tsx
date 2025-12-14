@@ -8,6 +8,7 @@ import { ProtectedLayout } from "@/components/layout/ProtectedLayout";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
+import ETSCalculator from "./pages/ETSCalculator";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,7 +25,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route element={<ProtectedLayout />}>
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/calculator" element={<Dashboard />} />
+              <Route path="/calculator" element={<ETSCalculator />} />
               <Route path="/plan" element={<Dashboard />} />
               <Route path="/careers" element={<Dashboard />} />
               <Route path="/sales" element={<Dashboard />} />
