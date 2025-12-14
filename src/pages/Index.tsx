@@ -1,23 +1,22 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { TrendingUp, ArrowRight, CheckCircle2, Target, Users, Calendar } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Target, Users, Calendar } from 'lucide-react';
+import logo from '@/assets/logo.png';
 import heroBg from '@/assets/hero-bg.jpg';
 
 export default function Index() {
   return (
     <div className="min-h-screen bg-background">
       <div className="relative overflow-hidden">
-        <img src={heroBg} alt="Hero background" className="absolute inset-0 w-full h-full object-cover opacity-30" />
+        <img src={heroBg} alt="Hero background" className="absolute inset-0 w-full h-full object-cover opacity-20" />
         <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/90 to-background" />
         
         <div className="relative z-10 container mx-auto px-6 py-20 lg:py-32">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="w-14 h-14 rounded-xl bg-accent flex items-center justify-center shadow-lg">
-              <TrendingUp className="w-8 h-8 text-accent-foreground" />
-            </div>
+          <div className="flex items-center gap-4 mb-8">
+            <img src={logo} alt="Sales Platoon" className="w-20 h-20 lg:w-24 lg:h-24" />
             <div>
-              <h1 className="font-display font-bold text-2xl">From Service</h1>
-              <p className="text-muted-foreground">To Success</p>
+              <h1 className="font-display font-bold text-2xl lg:text-3xl">Sales Platoon</h1>
+              <p className="text-muted-foreground">Veterans Transforming Veterans</p>
             </div>
           </div>
 

@@ -1,12 +1,13 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { TrendingUp, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+import logo from '@/assets/logo.png';
 import heroBg from '@/assets/hero-bg.jpg';
 
 export default function Auth() {
@@ -51,13 +52,11 @@ export default function Auth() {
         <img src={heroBg} alt="Hero" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-br from-background/90 via-background/70 to-background/90" />
         <div className="relative z-10 flex flex-col justify-center p-12">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="w-12 h-12 rounded-xl bg-accent flex items-center justify-center">
-              <TrendingUp className="w-7 h-7 text-accent-foreground" />
-            </div>
+          <div className="flex items-center gap-4 mb-8">
+            <img src={logo} alt="Sales Platoon" className="w-20 h-20" />
             <div>
-              <h1 className="font-display font-bold text-2xl">From Service</h1>
-              <p className="text-muted-foreground">To Success</p>
+              <h1 className="font-display font-bold text-2xl">Sales Platoon</h1>
+              <p className="text-muted-foreground">Veterans Transforming Veterans</p>
             </div>
           </div>
           <h2 className="font-display text-4xl font-bold mb-4">Your Mission: Civilian Success</h2>
@@ -69,10 +68,7 @@ export default function Auth() {
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <div className="lg:hidden flex items-center justify-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-accent-foreground" />
-              </div>
-              <span className="font-display font-bold text-xl">F2S</span>
+              <img src={logo} alt="Sales Platoon" className="w-14 h-14" />
             </div>
             <CardTitle className="text-2xl">{isLogin ? 'Welcome Back' : 'Join the Mission'}</CardTitle>
             <CardDescription>{isLogin ? 'Sign in to continue your transition plan' : 'Create your account to start planning'}</CardDescription>
