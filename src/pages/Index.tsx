@@ -60,9 +60,12 @@ export default function Index() {
         </div>
       </div>
 
-      <div className="container mx-auto px-6 py-10 text-center">
+      <div className="container mx-auto px-6 py-10 text-center space-y-2">
         <p className="text-xs text-muted-foreground">
           Disclaimer: This platform is not legal, financial, or official military advice. Always verify with your command and TAP counselor.
+        </p>
+        <p className="text-xs text-muted-foreground/60">
+          We never sell, share, or monetize your personal data. Your information stays private and secure.
         </p>
       </div>
     </div>
