@@ -22,9 +22,13 @@ import {
   GraduationCap,
   Award,
   Briefcase,
-  User
+  User,
+  Sparkles,
+  Loader2,
+  Brain
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Experience {
   id: string;
@@ -117,6 +121,16 @@ const ResumeBuilder = () => {
   // Job Description Matching
   const [jobDescription, setJobDescription] = useState("");
   const [matchScore, setMatchScore] = useState<number | null>(null);
+  
+  // AI States
+  const [isTranslating, setIsTranslating] = useState<string | null>(null);
+  const [isSuggestingBullets, setIsSuggestingBullets] = useState(false);
+  const [isOptimizing, setIsOptimizing] = useState(false);
+  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
+  const [mos, setMos] = useState("");
+  const [targetRole, setTargetRole] = useState("");
+  const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
+  const [aiOptimizationSuggestions, setAiOptimizationSuggestions] = useState<string[]>([]);
   const [missingKeywords, setMissingKeywords] = useState<string[]>([]);
   const [foundKeywords, setFoundKeywords] = useState<string[]>([]);
 
@@ -169,25 +183,213 @@ const ResumeBuilder = () => {
     ));
   };
 
-  const translateBullet = (expId: string, bulletIndex: number) => {
+  const translateBullet = async (expId: string, bulletIndex: number) => {
     const exp = experiences.find(e => e.id === expId);
-    if (!exp) return;
+    if (!exp || !exp.bullets[bulletIndex].trim()) {
+      toast({
+        title: "No Content",
+        description: "Please enter a bullet point to translate.",
+        variant: "destructive"
+      });
+      return;
+    }
     
-    let translated = exp.bullets[bulletIndex].toLowerCase();
+    setIsTranslating(`${expId}-${bulletIndex}`);
     
-    Object.entries(militaryToCivilianMap).forEach(([military, civilian]) => {
-      const regex = new RegExp(`\\b${military}\\b`, 'gi');
-      translated = translated.replace(regex, civilian);
-    });
+    try {
+      const { data, error } = await supabase.functions.invoke('resume-ai', {
+        body: { 
+          type: 'translate', 
+          content: exp.bullets[bulletIndex] 
+        }
+      });
+      
+      if (error) throw error;
+      if (data.error) throw new Error(data.error);
+      
+      updateBullet(expId, bulletIndex, data.result);
+      toast({
+        title: "AI Translation Complete",
+        description: "Military experience translated to civilian language.",
+      });
+    } catch (error) {
+      console.error('Translation error:', error);
+      
+      // Fallback to local translation
+      let translated = exp.bullets[bulletIndex].toLowerCase();
+      Object.entries(militaryToCivilianMap).forEach(([military, civilian]) => {
+        const regex = new RegExp(`\\b${military}\\b`, 'gi');
+        translated = translated.replace(regex, civilian);
+      });
+      translated = translated.charAt(0).toUpperCase() + translated.slice(1);
+      updateBullet(expId, bulletIndex, translated);
+      
+      toast({
+        title: "Basic Translation Applied",
+        description: "Used offline translation. AI unavailable.",
+      });
+    } finally {
+      setIsTranslating(null);
+    }
+  };
 
-    // Capitalize first letter
-    translated = translated.charAt(0).toUpperCase() + translated.slice(1);
+  const suggestBullets = async () => {
+    if (!mos.trim()) {
+      toast({
+        title: "Enter Your MOS/Rating",
+        description: "Please enter your military specialty to get suggestions.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsSuggestingBullets(true);
+    setAiSuggestions([]);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('resume-ai', {
+        body: { 
+          type: 'suggest', 
+          mos,
+          targetRole 
+        }
+      });
+      
+      if (error) throw error;
+      if (data.error) throw new Error(data.error);
+      
+      // Parse numbered list from response
+      const suggestions = data.result
+        .split('\n')
+        .filter((line: string) => line.trim())
+        .map((line: string) => line.replace(/^\d+\.\s*/, '').trim())
+        .filter((line: string) => line.length > 10);
+      
+      setAiSuggestions(suggestions);
+      toast({
+        title: "Suggestions Ready",
+        description: `Generated ${suggestions.length} bullet point suggestions.`,
+      });
+    } catch (error) {
+      console.error('Suggestion error:', error);
+      toast({
+        title: "Suggestion Failed",
+        description: error instanceof Error ? error.message : "Could not generate suggestions.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSuggestingBullets(false);
+    }
+  };
 
-    updateBullet(expId, bulletIndex, translated);
-    toast({
-      title: "Translated",
-      description: "Military terms have been converted to civilian language.",
-    });
+  const generateSummary = async () => {
+    const experienceContent = experiences
+      .map(exp => `${exp.title} at ${exp.unit}: ${exp.bullets.join('; ')}`)
+      .join('\n');
+    
+    if (!experienceContent.trim() || experienceContent.length < 20) {
+      toast({
+        title: "Add Experience First",
+        description: "Please add some experience before generating a summary.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsGeneratingSummary(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('resume-ai', {
+        body: { 
+          type: 'summary', 
+          content: experienceContent,
+          targetRole 
+        }
+      });
+      
+      if (error) throw error;
+      if (data.error) throw new Error(data.error);
+      
+      setPersonalInfo(prev => ({ ...prev, summary: data.result }));
+      toast({
+        title: "Summary Generated",
+        description: "Professional summary created based on your experience.",
+      });
+    } catch (error) {
+      console.error('Summary error:', error);
+      toast({
+        title: "Generation Failed",
+        description: error instanceof Error ? error.message : "Could not generate summary.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGeneratingSummary(false);
+    }
+  };
+
+  const analyzeWithAI = async () => {
+    if (!jobDescription.trim()) {
+      toast({
+        title: "No Job Description",
+        description: "Please paste a job description to analyze.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    const resumeContent = [
+      personalInfo.summary,
+      ...experiences.flatMap(exp => [exp.title, exp.unit, ...exp.bullets]),
+      ...education.map(edu => `${edu.degree} ${edu.school}`),
+      ...certifications.map(cert => cert.name),
+      ...skills
+    ].join('\n');
+    
+    if (resumeContent.length < 50) {
+      toast({
+        title: "Add Resume Content",
+        description: "Please add more content to your resume before analyzing.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsOptimizing(true);
+    setAiOptimizationSuggestions([]);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('resume-ai', {
+        body: { 
+          type: 'optimize', 
+          content: resumeContent,
+          jobDescription 
+        }
+      });
+      
+      if (error) throw error;
+      if (data.error) throw new Error(data.error);
+      
+      // Parse JSON response
+      const jsonMatch = data.result.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const analysis = JSON.parse(jsonMatch[0]);
+        setMatchScore(analysis.matchScore || 0);
+        setFoundKeywords(analysis.foundKeywords || []);
+        setMissingKeywords(analysis.missingKeywords || []);
+        setAiOptimizationSuggestions(analysis.suggestions || []);
+      }
+      
+      toast({
+        title: "AI Analysis Complete",
+        description: "Resume analyzed against job description.",
+      });
+    } catch (error) {
+      console.error('Optimization error:', error);
+      // Fallback to basic analysis
+      analyzeJobMatch();
+    } finally {
+      setIsOptimizing(false);
+    }
   };
 
   const addEducation = () => {
@@ -451,7 +653,22 @@ ${skills.join(' | ')}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="summary">Professional Summary</Label>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="summary">Professional Summary</Label>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={generateSummary}
+                        disabled={isGeneratingSummary}
+                      >
+                        {isGeneratingSummary ? (
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        ) : (
+                          <Sparkles className="w-4 h-4 mr-2" />
+                        )}
+                        AI Generate
+                      </Button>
+                    </div>
                     <Textarea 
                       id="summary" 
                       value={personalInfo.summary}
@@ -548,9 +765,14 @@ ${skills.join(' | ')}
                                 variant="outline" 
                                 size="icon"
                                 onClick={() => translateBullet(exp.id, bulletIndex)}
-                                title="Translate military terms"
+                                disabled={isTranslating === `${exp.id}-${bulletIndex}`}
+                                title="AI Translate to civilian language"
                               >
-                                <Wand2 className="w-4 h-4" />
+                                {isTranslating === `${exp.id}-${bulletIndex}` ? (
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                  <Wand2 className="w-4 h-4" />
+                                )}
                               </Button>
                               {exp.bullets.length > 1 && (
                                 <Button 
@@ -581,6 +803,72 @@ ${skills.join(' | ')}
                   <Plus className="w-4 h-4 mr-2" />
                   Add Experience
                 </Button>
+
+                {/* AI Bullet Suggestions */}
+                <Card className="border-primary/20 bg-primary/5">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Brain className="w-5 h-5 text-primary" />
+                      AI Bullet Point Suggestions
+                    </CardTitle>
+                    <CardDescription>
+                      Enter your MOS/Rating to get recruiter-approved achievement statements
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>MOS/Rating/AFSC</Label>
+                        <Input 
+                          value={mos}
+                          onChange={(e) => setMos(e.target.value)}
+                          placeholder="e.g., 11B, 18B, 68W, IT2, 3D0X2"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Target Role (Optional)</Label>
+                        <Input 
+                          value={targetRole}
+                          onChange={(e) => setTargetRole(e.target.value)}
+                          placeholder="e.g., Project Manager, Operations Director"
+                        />
+                      </div>
+                    </div>
+                    <Button 
+                      onClick={suggestBullets}
+                      disabled={isSuggestingBullets}
+                      className="w-full"
+                    >
+                      {isSuggestingBullets ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <Sparkles className="w-4 h-4 mr-2" />
+                      )}
+                      Generate Achievement Statements
+                    </Button>
+                    
+                    {aiSuggestions.length > 0 && (
+                      <div className="space-y-2 pt-4 border-t">
+                        <p className="text-sm font-medium text-muted-foreground">Click to copy:</p>
+                        {aiSuggestions.map((suggestion, idx) => (
+                          <div 
+                            key={idx}
+                            className="p-3 bg-background rounded-lg border cursor-pointer hover:border-primary/50 transition-colors"
+                            onClick={() => {
+                              navigator.clipboard.writeText(suggestion);
+                              toast({
+                                title: "Copied!",
+                                description: "Bullet point copied to clipboard.",
+                              });
+                            }}
+                          >
+                            <p className="text-sm">{suggestion}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
 
                 {/* Translation Guide */}
                 <Card className="bg-amber-500/5 border-amber-500/20">
@@ -804,10 +1092,26 @@ ${skills.join(' | ')}
                       placeholder="Paste the full job description here..."
                       rows={12}
                     />
-                    <Button onClick={analyzeJobMatch} className="w-full">
-                      <Target className="w-4 h-4 mr-2" />
-                      Analyze Match
-                    </Button>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button 
+                        onClick={analyzeJobMatch} 
+                        variant="outline"
+                      >
+                        <Target className="w-4 h-4 mr-2" />
+                        Quick Match
+                      </Button>
+                      <Button 
+                        onClick={analyzeWithAI}
+                        disabled={isOptimizing}
+                      >
+                        {isOptimizing ? (
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        ) : (
+                          <Sparkles className="w-4 h-4 mr-2" />
+                        )}
+                        AI Analysis
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
 
@@ -889,6 +1193,28 @@ ${skills.join(' | ')}
                             </Badge>
                           ))}
                         </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* AI Optimization Suggestions */}
+                  {aiOptimizationSuggestions.length > 0 && (
+                    <Card className="border-primary/20 bg-primary/5">
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <Sparkles className="w-5 h-5 text-primary" />
+                          AI Recommendations
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <ul className="space-y-2">
+                          {aiOptimizationSuggestions.map((suggestion, idx) => (
+                            <li key={idx} className="flex items-start gap-2 text-sm">
+                              <ArrowRight className="w-4 h-4 mt-0.5 text-primary shrink-0" />
+                              <span>{suggestion}</span>
+                            </li>
+                          ))}
+                        </ul>
                       </CardContent>
                     </Card>
                   )}
