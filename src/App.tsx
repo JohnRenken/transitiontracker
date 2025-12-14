@@ -11,6 +11,8 @@ import Dashboard from "./pages/Dashboard";
 import ETSCalculator from "./pages/ETSCalculator";
 import TransitionPlan from "./pages/TransitionPlan";
 import CareerPaths from "./pages/CareerPaths";
+import InterviewPrep from "./pages/InterviewPrep";
+import Resources from "./pages/Resources";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,8 +34,8 @@ const App = () => (
               <Route path="/careers" element={<CareerPaths />} />
               <Route path="/sales" element={<Dashboard />} />
               <Route path="/resume" element={<Dashboard />} />
-              <Route path="/interview" element={<Dashboard />} />
-              <Route path="/resources" element={<Dashboard />} />
+              <Route path="/interview" element={<InterviewPrep />} />
+              <Route path="/resources" element={<Resources />} />
               <Route path="/profile" element={<Dashboard />} />
               <Route path="/admin" element={<Dashboard />} />
             </Route>
