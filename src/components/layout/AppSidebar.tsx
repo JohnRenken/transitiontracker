@@ -9,10 +9,8 @@ import {
   TrendingUp,
   FileText,
   Users,
-  BookOpen,
   FolderOpen,
   User,
-  Settings,
   LogOut,
   Menu,
   X,
@@ -20,6 +18,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
+import logo from '@/assets/logo.png';
 
 const navItems = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -52,12 +51,10 @@ export function AppSidebar() {
     <>
       <div className="p-6 border-b border-border">
         <Link to="/dashboard" className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center">
-            <TrendingUp className="w-6 h-6 text-accent-foreground" />
-          </div>
+          <img src={logo} alt="Sales Platoon" className="w-12 h-12" />
           <div>
-            <h1 className="font-display font-bold text-lg leading-tight">From Service</h1>
-            <p className="text-xs text-muted-foreground">To Success</p>
+            <h1 className="font-display font-bold text-sm leading-tight">Sales Platoon</h1>
+            <p className="text-xs text-muted-foreground">From Service To Success</p>
           </div>
         </Link>
       </div>
@@ -131,10 +128,8 @@ export function AppSidebar() {
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-sidebar border-b border-border z-40 flex items-center justify-between px-4">
         <Link to="/dashboard" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center">
-            <TrendingUp className="w-5 h-5 text-accent-foreground" />
-          </div>
-          <span className="font-display font-bold">F2S</span>
+          <img src={logo} alt="Sales Platoon" className="w-10 h-10" />
+          <span className="font-display font-bold text-sm">Sales Platoon</span>
         </Link>
         <Button
           variant="ghost"
